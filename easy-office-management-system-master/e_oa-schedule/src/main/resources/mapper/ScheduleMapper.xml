@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.eoa.schedule.mapper.ScheduleMapper">
+    <insert id="insertSchedule" parameterType="Schedule" useGeneratedKeys="true" keyProperty="scheduleId">
+        insert into eoa_schedule
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="beginTime != null">begin_time,</if>
+            <if test="endTime != null">end_time,</if>
+            <if test="place != null">place,</if>
+            <if test="content != null">content,</if>
+            <if test="accompany != null">accompany,</if>
+            <if test="status != null">status,</if>
+            <if test="remark != null">remark,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="delFlag != null">del_flag,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="beginTime != null">#{beginTime},</if>
+            <if test="endTime != null">#{endTime},</if>
+            <if test="place != null">#{place},</if>
+            <if test="content != null">#{content},</if>
+            <if test="accompany != null">#{accompany},</if>
+            <if test="status != null">#{status},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+        </trim>
+    </insert>
+
+
+    <update id="updateSchedule" parameterType="Schedule">
+        update eoa_schedule
+        <trim prefix="set" suffixOverrides=",">
+            <if test="beginTime != null">begin_time=#{beginTime},</if>
+            <if test="endTime != null">end_time=#{endTime},</if>
+            <if test="place != null">place = #{place},</if>
+            <if test="content != null">content = #{content},</if>
+            <if test="accompany != null">accompany = #{accompany},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where schedule_id = #{scheduleId}
+    </update>
+
+    <update id="editStatus" parameterType="Long">
+        update eoa_schedule set status = 1
+        where schedule_id = #{scheduleId}
+    </update>
+
+    <update id="deleteScheduleByIds" parameterType="Long">
+        update eoa_schedule set del_flag = 1
+        where schedule_id in
+        <foreach item="scheduleId" collection="array" open="(" separator="," close=")">
+            #{scheduleId}
+        </foreach>
+    </update>
+
+    <select id="selectScheduleList" resultType="com.eoa.schedule.domain.vo.ScheduleVo" parameterType="Schedule">
+        select schedule_id, begin_time,end_time, place, content, accompany, remark, user_id, status, del_flag
+        from eoa_schedule where del_flag=0 and user_id=#{userId}
+        <if test="place != null  and place != ''"> and place like concat('%',#{place},'%')</if>
+        <choose>
+            <when test="status != null">
+                and status = #{status}
+            </when>
+            <otherwise>
+                and status=0
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="selectScheduleById" resultType="scheduleVo">
+        select schedule_id, begin_time,end_time, place, content, accompany, remark, user_id, status, del_flag
+        from eoa_schedule where del_flag=0 and schedule_id=#{scheduleId}
+    </select>
+</mapper>

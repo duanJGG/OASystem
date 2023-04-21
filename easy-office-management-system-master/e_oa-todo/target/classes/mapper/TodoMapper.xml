@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.eoa.todo.mapper.TodoMapper">
+
+    <insert id="insertTodo" parameterType="Todo" useGeneratedKeys="true" keyProperty="todoId">
+        insert into eoa_todo
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="title != null">title,</if>
+            <if test="content != null">content,</if>
+            <if test="finishTime != null">finish_time,</if>
+            <if test="status != null">status,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="delFlag != null">del_flag,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="title != null">#{title},</if>
+            <if test="content != null">#{content},</if>
+            <if test="finishTime != null">#{finishTime},</if>
+            <if test="status != null">#{status},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+        </trim>
+    </insert>
+
+    <update id="updateTodo" parameterType="Todo">
+        update eoa_todo
+        <trim prefix="set" suffixOverrides=",">
+            <if test="title != null">title = #{title},</if>
+            <if test="content != null">content = #{content},</if>
+            <if test="finishTime != null">finish_time = #{finishTime},</if>
+        </trim>
+        where todo_id = #{todoId}
+    </update>
+
+    <select id="selectTodoList" resultType="TodoVo" parameterType="Todo">
+        select todo_id, title, content, finish_time, status, user_id, create_time, del_flag,
+        TIMESTAMPDIFF(hour,now(),finish_time) as end_day
+        from eoa_todo where del_flag=0 and user_id=#{userId}
+        <if test="title != null  and title != ''"> and title like concat('%',#{title},'%')</if>
+        <choose>
+            <when test="status != null">
+                and status = #{status}
+            </when>
+            <otherwise>
+                and status=2
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="selectTodoByTodoId" resultType="TodoVo" parameterType="Long">
+        select todo_id, title, content, finish_time, status, user_id, create_time, del_flag
+        from eoa_todo where del_flag=0 and todo_id = #{todoId}
+    </select>
+
+    <update id="deleteTodoByTodoIds" parameterType="Long">
+        update eoa_todo set del_flag = 1
+        where todo_id in 
+        <foreach item="todoId" collection="array" open="(" separator="," close=")">
+            #{todoId}
+        </foreach>
+    </update>
+    <update id="editStatus" parameterType="Long">
+        update eoa_todo set status = 1
+        where todo_id = #{todoId}
+    </update>
+</mapper>

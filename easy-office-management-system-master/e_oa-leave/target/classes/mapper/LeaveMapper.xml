@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.eoa.leave.mapper.LeaveMapper">
+
+    <insert id="insertLeave" parameterType="Leave" useGeneratedKeys="true" keyProperty="leaveId">
+        insert into eoa_leave
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="leaveName!=null">leave_name,</if>
+            <if test="leaveReason!=null">leave_reason,</if>
+            <if test="leaveDays!=null">leave_days,</if>
+            <if test="leaveHours!=null">leave_hours,</if>
+            <if test="beginTime!=null">begin_time,</if>
+            <if test="endTime!=null">end_time,</if>
+            <if test="status!=null">status,</if>
+            <if test="userId!=null">user_id,</if>
+            <if test="createTime!=null">create_time,</if>
+            <if test="delFlag!=null">del_flag,</if>
+        </trim>
+        <trim prefix="values(" suffix=")" suffixOverrides=",">
+            <if test="leaveName!=null">#{leaveName},</if>
+            <if test="leaveReason!=null">#{leaveReason},</if>
+            <if test="leaveDays!=null">#{leaveDays},</if>
+            <if test="leaveHours!=null">#{leaveHours},</if>
+            <if test="beginTime!=null">#{beginTime},</if>
+            <if test="endTime!=null">#{endTime},</if>
+            <if test="status!=null">#{status},</if>
+            <if test="userId!=null">#{userId},</if>
+            <if test="createTime!=null">#{createTime},</if>
+            <if test="delFlag!=null">#{delFlag},</if>
+        </trim>
+    </insert>
+    <update id="updateLeaveStatus">
+        update eoa_leave
+        <trim prefix="set" suffixOverrides=",">
+            <if test="status != null">status = #{status},</if>
+            <if test="auditId != null">audit_id = #{auditId},</if>
+            <if test="auditName != null">audit_name = #{auditName},</if>
+            <if test="reason != null">reason = #{reason},</if>
+        </trim>
+        where leave_id = #{leaveId}
+    </update>
+    <select id="rejectedList" resultType="Leave" parameterType="leave">
+        select * from eoa_leave where user_id=#{userId} and del_flag = 0 and status=#{status}
+        ORDER BY create_time desc
+    </select>
+
+    <select id="historyApproveList" resultType="Leave" parameterType="Long">
+        select * from eoa_leave where audit_id=#{auditId} and del_flag = 0
+        ORDER BY create_time desc
+    </select>
+
+    <select id="selectWaitList" resultType="com.eoa.leave.domain.Leave" parameterType="Long">
+        select * from eoa_leave where leave_id=#{leaveId} and del_flag = 0
+        ORDER BY create_time desc
+    </select>
+
+    <select id="selectHistoryList" resultType="com.eoa.leave.domain.Leave" parameterType="leave">
+        select * from eoa_leave where user_id=#{userId} and del_flag = 0 and status!=#{status}
+                                and status !=3
+        ORDER BY create_time desc
+    </select>
+    <select id="selectWaitStatusList" resultType="com.eoa.leave.domain.Leave" parameterType="Long">
+        select * from eoa_leave where leave_id=#{leaveId} and del_flag = 0 and status in(2,3)
+        ORDER BY create_time desc
+    </select>
+
+    <update id="updateLeaveInfo" parameterType="leave">
+        update eoa_leave
+        <trim prefix="set" suffixOverrides=",">
+            <if test="leaveReason!=null">leave_reason = #{leaveReason},</if>
+            <if test="leaveDays!=null">leave_days = #{leaveDays},</if>
+            <if test="leaveHours!=null">leave_hours = #{leaveHours},</if>
+            <if test="beginTime!=null">begin_time = #{beginTime},</if>
+            <if test="endTime!=null">end_time = #{endTime},</if>
+            <if test="status!=null">status = #{status},</if>
+            <if test="auditName != null">audit_name = #{auditName},</if>
+            <if test="reason != null">reason = #{reason},</if>
+        </trim>
+        where leave_id = #{leaveId}
+    </update>
+</mapper>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.eoa.daily.mapper.DailyMapper">
+
+    <insert id="insertDaily" parameterType="Daily" useGeneratedKeys="true" keyProperty="dailyId">
+        insert into eoa_daily
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="title!=null">title,</if>
+            <if test="content!=null">content,</if>
+            <if test="status!=null">status,</if>
+            <if test="userId!=null">user_id,</if>
+            <if test="createTime!=null">create_time,</if>
+            <if test="delFlag!=null">del_flag,</if>
+            <if test="userName!=null">user_name,</if>
+        </trim>
+        <trim prefix="values(" suffix=")" suffixOverrides=",">
+            <if test="title!=null">#{title},</if>
+            <if test="content!=null">#{content},</if>
+            <if test="status!=null">#{status},</if>
+            <if test="userId!=null">#{userId},</if>
+            <if test="createTime!=null">#{createTime},</if>
+            <if test="delFlag!=null">#{delFlag},</if>
+            <if test="userName!=null">#{userName},</if>
+        </trim>
+    </insert>
+    <update id="updateDailyStatus" parameterType="Daily">
+        update eoa_daily
+        <trim prefix="set" suffixOverrides=",">
+            <if test="status != null">status = #{status},</if>
+            <if test="auditId != null">audit_id = #{auditId},</if>
+            <if test="auditName != null">audit_name = #{auditName},</if>
+            <if test="reason != null">reason = #{reason},</if>
+        </trim>
+        where daily_id = #{dailyId}
+    </update>
+
+    <select id="selectAuditList" resultType="Daily" parameterType="Long">
+        SELECT * FROM eoa_daily where daily_id=#{dailyId} and status=2 and del_flag=0
+                                ORDER BY create_time desc
+    </select>
+    <select id="selectResultList" resultType="com.eoa.daily.domain.Daily" parameterType="Daily">
+        SELECT * FROM eoa_daily where user_id=#{userId} and status!=#{status} and del_flag=0
+                                ORDER BY create_time desc
+    </select>
+    <select id="historyApproveList" resultType="com.eoa.daily.domain.Daily" parameterType="Long">
+        SELECT * FROM eoa_daily where audit_id=#{auditId}  and del_flag=0
+        ORDER BY create_time desc
+    </select>
+</mapper>
